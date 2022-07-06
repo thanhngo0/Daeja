@@ -26,3 +26,4 @@ client.on("ready", async() => {
 function sendMessage(username, channelId) {
     client.channels.cache.get(channelId).send(username + ", that is not a command!");
 }
+console.log("hi");
