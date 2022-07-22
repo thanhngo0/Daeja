@@ -1,0 +1,15 @@
+{
+  "ranksJson": [
+    {
+      "Iron":"https://cdn.discordapp.com/attachments/397176214537633812/999862939098038372/Emblem_Iron.png?width=469&height=536",
+      "Bronze":"https://cdn.discordapp.com/attachments/397176214537633812/999862936992497684/Emblem_Bronze.png",
+      "Silver":"https://cdn.discordapp.com/attachments/397176214537633812/999862935520292864/Emblem_Silver.png",
+      "Gold":"https://cdn.discordapp.com/attachments/397176214537633812/999862938254975077/Emblem_Gold.png",
+      "Platinum":"https://cdn.discordapp.com/attachments/397176214537633812/999862935000190986/Emblem_Platinum.png",
+      "Diamond":"https://cdn.discordapp.com/attachments/397176214537633812/999862937793597471/Emblem_Diamond.png",
+      "Master":"https://cdn.discordapp.com/attachments/397176214537633812/999862939672653855/Emblem_Master.png",
+      "Grandmaster":"https://cdn.discordapp.com/attachments/397176214537633812/999862938573754428/Emblem_Grandmaster.png",
+      "Challenger":"https://cdn.discordapp.com/attachments/397176214537633812/999862937445478420/Emblem_Challenger.png"
+    }
+  ]
+}
