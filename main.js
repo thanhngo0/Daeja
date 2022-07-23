@@ -3,23 +3,23 @@ const axios = require("axios");
 const { TOKEN } = require("./config.json");
 const { API_KEY } = require("./config.json");
 const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
-const { MessageButton, MessageActionRow, MessageEmbed  } = require("discord.js");
+const { MessageButton, MessageActionRow, MessageEmbed } = require("discord.js");
 const prefix = "^";
 const { ranksJson } = require("./ranks.json");
+const { MessageType } = require("discord-api-types/v10");
 const ranks = Array.from(ranksJson)[0]; //array of list of ranks
-let playerData;
-let playerRankInfo;
+let playerData, playerRankInfo, playerName; // player data rank and name
 let error = false;
-let rank1; //rank of player
-let tier;
-let wins;
-let losses;
-let lp;
-let playerName;
-let messg;
+let rankedRank, rankedTier, rankedWins, rankedLosses, rankedLP; //ranked stats
+let hyperRank, hyperLP, hyperWins, hyperLosses; //hyperroll stats
+let doubleRank, doubleTier, doubleWins, doubleLosses, doubleLP;
+let messg; //message
+let par; //parameters of command
 client.login(TOKEN);
 client.on("ready", async () => {
   console.log("on");
+  client.user.setPresence({ activities: [{ name: 'tft | ^help' }], status: 'idle' });
+  client.user.setStatus('idle')
 });
 async function sendMessage(msg) {
   // client.channels.cache.get(channelId).response(msg);
@@ -32,26 +32,45 @@ client.on("messageCreate", async (message) => {
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   const param = message.content.slice(message.content.indexOf(" ") + 1);
-  
+  par = param;
   switch (command) {
     case "help": {
-      sendMessage("help", CID);
-      break;
-    }
-    case "info": {
-      await searchForPlayer(param, CID);
-      if (error == false) {
-        sendMessage(
-          `**Name**: ${playerData.data.name} \n**Summoner Level**: ${playerData.data.summonerLevel} \n**Icon**: ${playerData.data.profileIconId} `,
-          CID
-        );
-        console.log("info");
-      }
+      const emb = new MessageEmbed()
+        .setColor("#F2CB88")
+        .setAuthor({
+          name: "Help Page",
+          iconURL: message.author.avatarURL(),
+        })
+        .setDescription(
+          "Daeja is a bot that will display the TFT statistics of a player when called."
+        )
+        .addFields(
+          {
+            name: "Prefix",
+            value: "^",
+            inline: true,
+          },
+          {
+            name: "Commands",
+            value:
+              "**help** to show this panel\n**stats [user?]** to show player's stats",
+            inline: true,
+          }
+        )
+        .setThumbnail(
+          "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png"
+        )
+        .setFooter({
+          text: "Developed by zef#9597 • https://github.com/thanhngo0",
+          iconURL:
+            "https://cdn.discordapp.com/avatars/186242909236887552/7baeca26bf7b507ced1c2c79c45243c8.webp",
+        });
+      sendMessage({ embeds: [emb] });
       break;
     }
     case "stats": {
-      await searchForPlayer(param, CID);
-      if (error == false) await searchPlayerRank(playerData.data.id, CID);
+      await searchForPlayer(param);
+      if (error == false) await searchPlayerRank(playerData.id);
       if (error == false) {
         const row = new MessageActionRow().addComponents(
           new MessageButton()
@@ -62,55 +81,68 @@ client.on("messageCreate", async (message) => {
         const emb = new MessageEmbed()
           .setColor("#F2CB88")
           .setAuthor({
-            name: playerData.data.name + "'s Profile",
-            iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.data.profileIconId}.png`,
+            name: playerData.name + "'s Profile",
+            iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.profileIconId}.png`,
             url: "https://lolchess.gg/profile/na/" + param,
           })
-          .setThumbnail(ranks[rank1])
+          .setThumbnail(ranks[rankedRank])
           .addFields(
             {
               name: "Rank",
-              value: rank1 + " " + tier + " " + lp,
+              value: rankedRank + " " + rankedTier + " " + rankedLP,
               inline: true,
             },
             {
               name: "Matches Played",
-              value: wins + losses + "",
+              value: rankedWins + rankedLosses + "",
               inline: true,
             },
             {
               name: "Top4 Rate",
               value:
-                ((wins / (wins + losses)) * 100).toFixed(1) +
+                ((rankedWins / (rankedWins + rankedLosses)) * 100).toFixed(1) +
                 "%\nTop4s: **" +
-                wins +
+                rankedWins +
                 "**\nBot4s: **" +
-                losses +
+                rankedLosses +
                 "**",
               inline: true,
             }
           )
-          .setTimestamp()
           .setFooter({
             text: "^help for a list of commands",
             iconURL:
               "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
           });
 
-          sendMessage({ components: [row] , embeds: [emb]});
+        sendMessage({ components: [row], embeds: [emb] });
       }
       break;
     }
+    // case "test": {
+    //   await searchForPlayer(param);
+    //   await searchPlayerOtherRank(playerData.data.id);
+    //   break;
+    // }
     default: {
-      sendMessage(
-        message.author.username + ", that command does not exist.",
-        CID
-      );
+      const emb = new MessageEmbed()
+        .setColor("#F2CB88")
+        .setAuthor({
+          name: messg.author.username,
+          iconURL: messg.author.avatarURL(),
+        })
+        .setDescription(`**${command}** is not a command`)
+        .setFooter({
+          text: "^help for a list of commands",
+          iconURL:
+            "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
+        });
+      sendMessage({ embeds: [emb] });
     }
   }
 });
 
-async function searchForPlayer(player, CID) {
+async function searchForPlayer(player) {
   var APICallString =
     "https://na1.api.riotgames.com/tft/summoner/v1/summoners/by-name/" +
     encodeURIComponent(player) +
@@ -118,17 +150,25 @@ async function searchForPlayer(player, CID) {
     API_KEY;
   try {
     const response = await axios.get(APICallString);
-    playerData = response;
-    playerName = playerData.data.name;
+    playerData = response.data;
+    playerName = playerData.name;
     error = false;
   } catch (e) {
     error = true;
-    console.log("Request failed");
-    sendMessage("That user does not exist.", CID);
+    console.log("User doesn't exist");
+    const emb = new MessageEmbed()
+      .setColor("#F2CB88")
+      .setAuthor({
+        name: messg.author.username,
+        iconURL: messg.author.avatarURL(),
+      })
+      .setDescription(`No player found with the name, **${par}**`);
+    sendMessage({ embeds: [emb] });
+
     return;
   }
 }
-async function searchPlayerRank(id, CID) {
+async function searchPlayerRank(id) {
   var APICallString =
     "https://na1.api.riotgames.com/tft/league/v1/entries/by-summoner/" +
     id +
@@ -138,11 +178,17 @@ async function searchPlayerRank(id, CID) {
     const response = await axios.get(APICallString);
     playerRankInfo = response.data;
     if (playerRankInfo == "") {
+      const row = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel("View Profile")
+          .setStyle(5)
+          .setURL("https://lolchess.gg/profile/na/" + playerName)
+      );
       const emb = new MessageEmbed()
         .setColor("#F2CB88")
         .setAuthor({
-          name: playerData.data.name + "'s Profile",
-          iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.data.profileIconId}.png`,
+          name: playerData.name + "'s Profile",
+          iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.profileIconId}.png`,
           url: "https://lolchess.gg/profile/na/" + playerName,
         })
         .setThumbnail("https://cdn.lolchess.gg/images/lol/tier/provisional.png")
@@ -151,27 +197,54 @@ async function searchPlayerRank(id, CID) {
           value: "Unranked",
           inline: true,
         })
-        .setTimestamp()
         .setFooter({
           text: "^help for a list of commands",
           iconURL:
             "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
         });
-      sendMessage({ embeds: [emb] }, CID);
+      sendMessage({ embeds: [emb], components: [row] });
       error = true;
     } else {
-      let temp = Array.from(playerRankInfo)[0];
-      rank1 = temp.tier[0] + temp.tier.substring(1).toLowerCase();
-      tier = temp.rank;
-      lp = temp.leaguePoints + " LP";
-      wins = temp.wins;
-      losses = temp.losses;
-      error = false;
+      let dataArray = Array.from(playerRankInfo);
+      console.log(dataArray);
+      for (const temp of dataArray) {
+        if (temp.queueType == "RANKED_TFT") {
+          rankedRank = temp.tier[0] + temp.tier.substring(1).toLowerCase();
+          rankedTier = temp.rank;
+          rankedLP = temp.leaguePoints + " LP";
+          rankedWins = temp.wins;
+          rankedLosses = temp.losses;
+        } else if (temp.queueType == "RANKED_TFT_TURBO") {
+          hyperLP = temp.ratedRating;
+          hyperLosses = temp.losses;
+          hyperRank = temp.ratedTier;
+          hyperWins = temp.wins;
+        }
+      }
+      error = false;     
     }
   } catch (e) {
     error = true;
-    console.log("Couldn't find player", e);
-    sendMessage("That user does not exist.", CID);
+    console.log("error", e);
+    sendMessage("error");
     return;
   }
 }
+
+// async function searchPlayerDoubleRank(id) {
+//   var APICallString =
+//     "https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/" +
+//     id +
+//     "?api_key=" +
+//     API_KEY;
+//   try {
+//     const response = await axios.get(APICallString);
+//     console.log(response);
+//     playerRankInfo = response.data;
+//   } catch (e) {
+//     error = true;
+//     console.log("error", e);
+//     sendMessage("error");
+//     return;
+//   }
+// }
