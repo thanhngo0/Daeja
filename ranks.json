@@ -9,7 +9,12 @@
       "Diamond":"https://cdn.discordapp.com/attachments/397176214537633812/999862937793597471/Emblem_Diamond.png",
       "Master":"https://cdn.discordapp.com/attachments/397176214537633812/999862939672653855/Emblem_Master.png",
       "Grandmaster":"https://cdn.discordapp.com/attachments/397176214537633812/999862938573754428/Emblem_Grandmaster.png",
-      "Challenger":"https://cdn.discordapp.com/attachments/397176214537633812/999862937445478420/Emblem_Challenger.png"
+      "Challenger":"https://cdn.discordapp.com/attachments/397176214537633812/999862937445478420/Emblem_Challenger.png",
+      "Gray" : "https://static.wikia.nocookie.net/leagueoflegends/images/7/70/TFT_Hyper_Roll_Grey_Tier.png/revision/latest?cb=20220112171205",
+      "Green" : "https://static.wikia.nocookie.net/leagueoflegends/images/8/81/TFT_Hyper_Roll_Green_Tier.png/revision/latest?cb=20220112171202",
+      "Blue" : "https://static.wikia.nocookie.net/leagueoflegends/images/5/59/TFT_Hyper_Roll_Blue_Tier.png/revision/latest?cb=20220112171159",
+      "Purple" : "https://static.wikia.nocookie.net/leagueoflegends/images/9/96/TFT_Hyper_Roll_Purple_Tier.png/revision/latest?cb=20220112171211",
+      "Hyper" : "https://static.wikia.nocookie.net/leagueoflegends/images/6/69/TFT_Hyper_Roll_Hyper_Tier.png/revision/latest?cb=20220112171208"
     }
   ]
 }

@@ -25,6 +25,8 @@ let hyperRank1, hyperLP1, hyperWins1, hyperLosses1; //hyperroll stats
 let doubleRank1, doubleTier1, doubleWins1, doubleLosses1, doubleLP1;
 let messg; //message
 let par; //parameters of command
+let qt = "ranked"; //queue type
+let msgT;
 let unrankedRanked1,
   unrankedHyper1,
   unrankedDouble1 = false;
@@ -33,10 +35,7 @@ let row, row1, row2, row3;
 client.login(TOKEN);
 client.on("ready", async () => {
   console.log("on");
-  client.user.setPresence({
-    activities: [{ name: "tft | ^help" }],
-    status: "idle",
-  });
+  client.user.setActivity("tft | ^help");
   client.user.setStatus("idle");
 });
 async function sendMessage(msg) {
@@ -105,55 +104,54 @@ client.on("messageCreate", async (message) => {
 
         row = new MessageActionRow().addComponents(
           new MessageButton()
-            .setLabel("View Profile")
+            .setLabel("Hyper Roll")
+            .setStyle(1)
+            .setCustomId("hyper"),
+          new MessageButton()
+            .setLabel("Double Up")
+            .setStyle(1)
+            .setCustomId("double"),
+          new MessageButton()
+            .setLabel("Profile")
             .setStyle(5)
             .setURL("https://lolchess.gg/profile/na/" + param),
           new MessageButton().setLabel("Done").setStyle(3).setCustomId("done")
         );
         row1 = new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setCustomId("select1")
-            .setPlaceholder("Queue Type")
-            .addOptions(
-              {
-                label: "Hyper Roll",
-                value: "first_option",
-              },
-              {
-                label: "Double Up",
-                value: "second_option",
-              }
-            )
+          new MessageButton()
+            .setLabel("Ranked")
+            .setStyle(1)
+            .setCustomId("ranked"),
+          new MessageButton()
+            .setLabel("Double Up")
+            .setStyle(1)
+            .setCustomId("double"),
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param),
+          new MessageButton().setLabel("Done").setStyle(3).setCustomId("done")
         );
         row2 = new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setCustomId("select2")
-            .setPlaceholder("Queue Type")
-            .addOptions(
-              {
-                label: "Ranked",
-                value: "third_option",
-              },
-              {
-                label: "Double Up",
-                value: "second_option",
-              }
-            )
+          new MessageButton()
+            .setLabel("Ranked")
+            .setStyle(1)
+            .setCustomId("ranked"),
+          new MessageButton()
+            .setLabel("Hyper Roll")
+            .setStyle(1)
+            .setCustomId("hyper"),
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param),
+          new MessageButton().setLabel("Done").setStyle(3).setCustomId("done")
         );
         row3 = new MessageActionRow().addComponents(
-          new MessageSelectMenu()
-            .setCustomId("select3")
-            .setPlaceholder("Queue Type")
-            .addOptions(
-              {
-                label: "Ranked",
-                value: "third_option",
-              },
-              {
-                label: "Hyper Roll",
-                value: "first_option",
-              }
-            )
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param)
         );
         unrankedMsg = new MessageEmbed()
           .setColor("#F2CB88")
@@ -277,9 +275,12 @@ client.on("messageCreate", async (message) => {
         }
         if (unrankedRanked == false) {
           //sendMessage({ components: [row1], embeds: [rankedMsg] });
-          await message.reply({ components: [row, row1], embeds: [rankedMsg] });
-        } else
-          await sendMessage({ components: [row, row1], embeds: [unrankedMsg] });
+          await message.reply({ components: [row], embeds: [rankedMsg] });
+          msgT = { components: [row], embeds: [rankedMsg] };
+        } else {
+          await sendMessage({ components: [row], embeds: [unrankedMsg] });
+          msgT = { components: [row], embeds: [unrankedMsg] };
+        }
       }
       break;
     }
@@ -300,52 +301,102 @@ client.on("messageCreate", async (message) => {
     }
   }
 });
+let done = false;
 client.on("interactionCreate", async (interaction) => {
-  //if (!interaction.isButton()) return;
-  if (!interaction.isSelectMenu() && !interaction.isButton()) return;
+  if (!interaction.isSelectMenu() && !interaction.isButton()) {
+    return;
+  }
   if (interaction.customId == "done") {
     try {
-      await interaction.message.delete();
-      await interaction.deferUpdate();
     } catch (e) {}
-  } else if (interaction.values[0] == "first_option") {
-    await interaction.deferUpdate();
+  } else if (interaction.customId == "hyper") {
+    qt = "hyper";
     try {
       if (unrankedHyper1 == false) {
-        await interaction.editReply({
-          components: [row, row2],
+        msgT = {
+          components: [row1],
           embeds: [hyperMsg],
-        });
+        };
       } else {
-        await interaction.editReply({
-          components: [row, row2],
+        msgT = {
+          components: [row1],
           embeds: [unrankedMsg],
-        });
+        };
       }
     } catch (e) {
       console.log(e);
     }
-  } else if (interaction.values[0] == "second_option") {
-    await interaction.deferUpdate();
-  } else if (interaction.values[0] == "third_option") {
-    await interaction.deferUpdate();
+  } else if (interaction.customId == "double") {
+    qt = "double";
+  } else if (interaction.customId == "ranked") {
+    qt = "ranked";
     try {
       if (unrankedRanked1 == false) {
-        await interaction.editReply({
-          components: [row, row1],
+        msgT = {
+          components: [row],
           embeds: [rankedMsg],
-        });
+        };
       } else {
-        await interaction.editReply({
-          components: [row, row1],
+        msgT = {
+          components: [row],
           embeds: [unrankedMsg],
-        });
+        };
       }
     } catch (e) {
       console.log(e);
     }
   }
+  await interaction.deferUpdate();
+  if (interaction.customId !== "done") await interaction.editReply(msgT);
+  else {
+    await interaction.editReply({ components: [], embeds: msgT.embeds });
+  }
 });
+
+//client.on("interactionCreate", async (interaction) => {
+//   //if (!interaction.isButton()) return;
+//   if (!interaction.isSelectMenu() && !interaction.isButton()) return;
+//   await interaction.deferUpdate();
+//   if (interaction.customId == "done") {
+//     try {
+//       await interaction.editReply({ components: [], embeds: msgT.embeds });
+//     } catch (e) {}
+//   } else if (interaction.customId == "hyper") {
+//     try {
+//       if (unrankedHyper1 == false) {
+//         await interaction.editReply({
+//           components: [row1],
+//           embeds: [hyperMsg],
+//         });
+//       } else {
+//         await interaction.editReply({
+//           components: [row1],
+//           embeds: [unrankedMsg],
+//         });
+//       }
+//     } catch (e) {
+//       console.log(e);
+//     }
+//   } else if (interaction.customId == "double") {
+//   } else if (interaction.customId == "ranked") {
+//     try {
+//       if (unrankedRanked1 == false) {
+//         await interaction.editReply({
+//           components: [row],
+//           embeds: [rankedMsg],
+//         });
+//       } else {
+//         await interaction.editReply({
+//           components: [row],
+//           embeds: [unrankedMsg],
+//         });
+//       }
+//     } catch (e) {
+//       console.log(e);
+//     }
+//   }
+// });
+
 //searches for the player requested and sets playerData to the player data if found
 //else it will display a player not found msg
 async function searchForPlayer(player) {
