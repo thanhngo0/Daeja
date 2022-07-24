@@ -25,6 +25,7 @@ let hyperRank1, hyperLP1, hyperWins1, hyperLosses1; //hyperroll stats
 let doubleRank1, doubleTier1, doubleWins1, doubleLosses1, doubleLP1;
 let messg; //message
 let par; //parameters of command
+let msgRef;
 let qt = "ranked"; //queue type
 let msgT;
 let unrankedRanked1,
@@ -85,10 +86,11 @@ client.on("messageCreate", async (message) => {
       await sendMessage({ embeds: [emb] });
       break;
     }
-    case "stats": {
+    case "start": {
       await searchForPlayer(param);
       if (error == false) await searchPlayerRank(playerData.id);
       if (error == false) {
+        isStatsCalled = true;
         let rankedRank = rankedRank1;
         let rankedTier = rankedTier1;
         let rankedWins = rankedWins1;
@@ -101,7 +103,6 @@ client.on("messageCreate", async (message) => {
         let unrankedRanked = unrankedRanked1;
         let unrankedHyper = unrankedHyper1;
         let unrankedDouble = unrankedDouble1;
-
         row = new MessageActionRow().addComponents(
           new MessageButton()
             .setLabel("Hyper Roll")
@@ -114,8 +115,7 @@ client.on("messageCreate", async (message) => {
           new MessageButton()
             .setLabel("Profile")
             .setStyle(5)
-            .setURL("https://lolchess.gg/profile/na/" + param),
-          new MessageButton().setLabel("Done").setStyle(3).setCustomId("done")
+            .setURL("https://lolchess.gg/profile/na/" + param)
         );
         row1 = new MessageActionRow().addComponents(
           new MessageButton()
@@ -129,8 +129,7 @@ client.on("messageCreate", async (message) => {
           new MessageButton()
             .setLabel("Profile")
             .setStyle(5)
-            .setURL("https://lolchess.gg/profile/na/" + param),
-          new MessageButton().setLabel("Done").setStyle(3).setCustomId("done")
+            .setURL("https://lolchess.gg/profile/na/" + param)
         );
         row2 = new MessageActionRow().addComponents(
           new MessageButton()
@@ -144,8 +143,7 @@ client.on("messageCreate", async (message) => {
           new MessageButton()
             .setLabel("Profile")
             .setStyle(5)
-            .setURL("https://lolchess.gg/profile/na/" + param),
-          new MessageButton().setLabel("Done").setStyle(3).setCustomId("done")
+            .setURL("https://lolchess.gg/profile/na/" + param)
         );
         row3 = new MessageActionRow().addComponents(
           new MessageButton()
@@ -275,12 +273,226 @@ client.on("messageCreate", async (message) => {
         }
         if (unrankedRanked == false) {
           //sendMessage({ components: [row1], embeds: [rankedMsg] });
-          await message.reply({ components: [row], embeds: [rankedMsg] });
+          msgRef = await message.reply({
+            components: [row],
+            embeds: [rankedMsg],
+          });
           msgT = { components: [row], embeds: [rankedMsg] };
         } else {
-          await sendMessage({ components: [row], embeds: [unrankedMsg] });
+          msgRef = await sendMessage({
+            components: [row],
+            embeds: [unrankedMsg],
+          });
           msgT = { components: [row], embeds: [unrankedMsg] };
         }
+        // setTimeout(() => msgRef.edit({ components: [], embeds: msgT.embeds }), 1000 * 5);
+      }
+      break;
+    }
+    case "stats": {
+      await searchForPlayer(param);
+      if (error == false) await searchPlayerRank(playerData.id);
+      if (error == false) {
+        msgRef.edit({ components: [], embeds: msgT.embeds });
+        isStatsCalled = true;
+        let rankedRank = rankedRank1;
+        let rankedTier = rankedTier1;
+        let rankedWins = rankedWins1;
+        let rankedLosses = rankedLosses1;
+        let rankedLP = rankedLP1;
+        let hyperRank = hyperRank1;
+        let hyperLP = hyperLP1;
+        let hyperWins = hyperWins1;
+        let hyperLosses = hyperLosses1;
+        let unrankedRanked = unrankedRanked1;
+        let unrankedHyper = unrankedHyper1;
+        let unrankedDouble = unrankedDouble1;
+        row = new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Hyper Roll")
+            .setStyle(1)
+            .setCustomId("hyper"),
+          new MessageButton()
+            .setLabel("Double Up")
+            .setStyle(1)
+            .setCustomId("double"),
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param)
+        );
+        row1 = new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Ranked")
+            .setStyle(1)
+            .setCustomId("ranked"),
+          new MessageButton()
+            .setLabel("Double Up")
+            .setStyle(1)
+            .setCustomId("double"),
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param)
+        );
+        row2 = new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Ranked")
+            .setStyle(1)
+            .setCustomId("ranked"),
+          new MessageButton()
+            .setLabel("Hyper Roll")
+            .setStyle(1)
+            .setCustomId("hyper"),
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param)
+        );
+        row3 = new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Profile")
+            .setStyle(5)
+            .setURL("https://lolchess.gg/profile/na/" + param)
+        );
+        unrankedMsg = new MessageEmbed()
+          .setColor("#F2CB88")
+          .setAuthor({
+            name: playerData.name + "'s Profile",
+            iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.profileIconId}.png`,
+            url: "https://lolchess.gg/profile/na/" + playerName,
+          })
+          .setThumbnail(
+            "https://cdn.lolchess.gg/images/lol/tier/provisional.png"
+          )
+          .addFields({
+            name: "Rank",
+            value: "Unranked",
+            inline: true,
+          })
+          .setFooter({
+            text: "^help for a list of commands",
+            iconURL:
+              "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
+          });
+        if (unrankedRanked == false) {
+          rankedMsg = new MessageEmbed()
+            .setColor("#F2CB88")
+            .setAuthor({
+              name: playerData.name + "'s Profile",
+              iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.profileIconId}.png`,
+              url: "https://lolchess.gg/profile/na/" + param,
+            })
+            .setThumbnail(ranks[rankedRank])
+            .addFields(
+              {
+                name: "Rank",
+                value: rankedRank + " " + rankedTier,
+                inline: true,
+              },
+              {
+                name: "Rating",
+                value: rankedLP + "",
+                inline: true,
+              },
+              {
+                name: "Matches Played",
+                value: rankedWins + rankedLosses + "",
+                inline: true,
+              },
+
+              {
+                name: "Top 4's",
+                value: rankedWins + "",
+                inline: true,
+              },
+              {
+                name: "Bot 4's",
+                value: rankedLosses + "",
+                inline: true,
+              },
+              {
+                name: "Win Rate",
+                value:
+                  ((rankedWins / (rankedWins + rankedLosses)) * 100).toFixed(
+                    1
+                  ) + "%",
+                inline: true,
+              }
+            )
+            .setFooter({
+              text: "^help for a list of commands",
+              iconURL:
+                "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
+            });
+        }
+        if (unrankedHyper == false) {
+          hyperMsg = new MessageEmbed()
+            .setColor("#F2CB88")
+            .setAuthor({
+              name: playerData.name + "'s Profile",
+              iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.profileIconId}.png`,
+              url: "https://lolchess.gg/profile/na/" + param,
+            })
+            .setThumbnail(ranks[hyperRank])
+            .addFields(
+              {
+                name: "Rank",
+                value: hyperRank,
+                inline: true,
+              },
+              {
+                name: "Rating",
+                value: hyperLP + "",
+                inline: true,
+              },
+              {
+                name: "Matches Played",
+                value: hyperWins + hyperLosses + " ",
+                inline: true,
+              },
+              {
+                name: "Top 4's",
+                value: hyperWins + "",
+                inline: true,
+              },
+              {
+                name: "Bot 4's",
+                value: hyperLosses + "",
+                inline: true,
+              },
+              {
+                name: "Win Rate",
+                value:
+                  ((hyperWins / (hyperWins + hyperLosses)) * 100).toFixed(1) +
+                  "%",
+                inline: true,
+              }
+            )
+            .setFooter({
+              text: "^help for a list of commands",
+              iconURL:
+                "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
+            });
+        }
+        if (unrankedRanked == false) {
+          //sendMessage({ components: [row1], embeds: [rankedMsg] });
+          msgRef = await message.reply({
+            components: [row],
+            embeds: [rankedMsg],
+          });
+          msgT = { components: [row], embeds: [rankedMsg] };
+        } else {
+          msgRef = await sendMessage({
+            components: [row],
+            embeds: [unrankedMsg],
+          });
+          msgT = { components: [row], embeds: [unrankedMsg] };
+        }
+        setTimeout(
+          () => msgRef.edit({ components: [], embeds: msgT.embeds }),
+          1000 * 60
+        );
       }
       break;
     }
@@ -300,16 +512,18 @@ client.on("messageCreate", async (message) => {
       await sendMessage({ embeds: [emb] });
     }
   }
+  // const filter = m => command == 'stats';
+  // console.log(filter);
+  // const collector = interaction.channel.createMessageCollector({filter, time: 1000 * 15});
+
+  // collector.on('collect', m => {
+  //   interaction.editReply({ components: [], embeds: msgT.embeds });
+  // });
 });
-let done = false;
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isSelectMenu() && !interaction.isButton()) {
-    return;
-  }
-  if (interaction.customId == "done") {
-    try {
-    } catch (e) {}
-  } else if (interaction.customId == "hyper") {
+  if (!interaction.isSelectMenu() && !interaction.isButton()) return;
+
+  if (interaction.customId == "hyper") {
     qt = "hyper";
     try {
       if (unrankedHyper1 == false) {
@@ -347,55 +561,8 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
   await interaction.deferUpdate();
-  if (interaction.customId !== "done") await interaction.editReply(msgT);
-  else {
-    await interaction.editReply({ components: [], embeds: msgT.embeds });
-  }
+  await interaction.editReply(msgT);
 });
-
-//client.on("interactionCreate", async (interaction) => {
-//   //if (!interaction.isButton()) return;
-//   if (!interaction.isSelectMenu() && !interaction.isButton()) return;
-//   await interaction.deferUpdate();
-//   if (interaction.customId == "done") {
-//     try {
-//       await interaction.editReply({ components: [], embeds: msgT.embeds });
-//     } catch (e) {}
-//   } else if (interaction.customId == "hyper") {
-//     try {
-//       if (unrankedHyper1 == false) {
-//         await interaction.editReply({
-//           components: [row1],
-//           embeds: [hyperMsg],
-//         });
-//       } else {
-//         await interaction.editReply({
-//           components: [row1],
-//           embeds: [unrankedMsg],
-//         });
-//       }
-//     } catch (e) {
-//       console.log(e);
-//     }
-//   } else if (interaction.customId == "double") {
-//   } else if (interaction.customId == "ranked") {
-//     try {
-//       if (unrankedRanked1 == false) {
-//         await interaction.editReply({
-//           components: [row],
-//           embeds: [rankedMsg],
-//         });
-//       } else {
-//         await interaction.editReply({
-//           components: [row],
-//           embeds: [unrankedMsg],
-//         });
-//       }
-//     } catch (e) {
-//       console.log(e);
-//     }
-//   }
-// });
 
 //searches for the player requested and sets playerData to the player data if found
 //else it will display a player not found msg
@@ -462,7 +629,15 @@ async function searchPlayerRank(id) {
   } catch (e) {
     error = true;
     console.log("error", e);
-    await sendMessage("error");
+    const emb = new MessageEmbed()
+      .setColor("#F2CB88")
+      .setAuthor({
+        name: messg.author.username,
+        iconURL: messg.author.avatarURL(),
+      })
+      .setDescription(`An error occurred, please try again.`);
+    await sendMessage({ embeds: [emb] });
+
     return;
   }
 }
@@ -480,32 +655,3 @@ async function searchPlayerDoubleRank(id) {
     playerLOLRankInfo = response.data;
   } catch {}
 }
-
-// if (playerRankInfo == "") {
-//   const row = new MessageActionRow().addComponents(
-//     new MessageButton()
-//       .setLabel("View Profile")
-//       .setStyle(5)
-//       .setURL("https://lolchess.gg/profile/na/" + playerName)
-//   );
-//   const emb = new MessageEmbed()
-//     .setColor("#F2CB88")
-//     .setAuthor({
-//       name: playerData.name + "'s Profile",
-//       iconURL: `https://ddragon.leagueoflegends.com/cdn/12.13.1/img/profileicon/${playerData.profileIconId}.png`,
-//       url: "https://lolchess.gg/profile/na/" + playerName,
-//     })
-//     .setThumbnail("https://cdn.lolchess.gg/images/lol/tier/provisional.png")
-//     .addFields({
-//       name: "Rank",
-//       value: "Unranked",
-//       inline: true,
-//     })
-//     .setFooter({
-//       text: "^help for a list of commands",
-//       iconURL:
-//         "https://media.discordapp.net/attachments/994108022706155580/999859304955924601/unknown.png",
-//     });
-//   sendMessage({ embeds: [emb], components: [row] });
-//   error = true;
-// }
